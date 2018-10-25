@@ -37,8 +37,8 @@ spec:
             secretName: ceph-bootstrap-rbd-keyring
       containers:
         - name: ceph-mon
-          image: ceph/daemon:latest
-          imagePullPolicy: Always
+          image: ceph/daemon:master-2ecd979-mimic-centos-7-x86_64
+          imagePullPolicy: IfNotPresent
           lifecycle:
             preStop:
                 exec:

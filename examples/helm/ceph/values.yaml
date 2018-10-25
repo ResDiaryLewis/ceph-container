@@ -1,5 +1,5 @@
 images:
-  daemon: docker.io/ceph/daemon:latest
+  daemon: docker.io/ceph/daemon:master-d4b8dde-kraken-centos-7-x86_64
   exporter: digitalocean/ceph_exporter:1.0.0
   ceph_init: docker.io/kollakube/centos-binary-ceph-init-k8s:4.0.0
 
