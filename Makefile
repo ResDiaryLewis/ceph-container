@@ -18,11 +18,14 @@
 
 # When updating these defaults, be sure to check that ALL_BUILDABLE_FLAVORS is updated
 FLAVORS ?= \
-	luminous,opensuse,42.3 \
+	luminous,ubuntu,16.04 \
+	jewel,ubuntu,16.04 \
+	jewel,ubuntu,14.04 \
+	kraken,ubuntu,16.04 \
 	luminous,centos,7 \
-	luminous,debian,9 \
+	jewel,centos,7 \
+	kraken,centos,7 \
 	mimic,centos,7 \
-	master,centos,7
 
 TAG_REGISTRY ?= ceph
 
@@ -45,11 +48,16 @@ include maint-lib/makelib.mk
 
 # All flavor options that can be passed to FLAVORS
 ALL_BUILDABLE_FLAVORS := \
+	luminous,ubuntu,16.04 \
+	jewel,ubuntu,16.04 \
+	jewel,ubuntu,14.04 \
+	kraken,ubuntu,16.04 \
 	luminous,centos,7 \
+	jewel,centos,7 \
+	kraken,centos,7 \
 	luminous,opensuse,42.3 \
-	luminous,debian,9 \
-	mimic,centos,7 \
-	master,centos,7
+	mimic,ubuntu,16.04 \
+	mimic,centos,7
 
 # ==============================================================================
 # Build targets
@@ -58,12 +66,15 @@ ALL_BUILDABLE_FLAVORS := \
 stage.%:
 	@$(call set_env_vars,$*) sh -c maint-lib/stage.py
 
-# Make daemon-base.% and/or daemon.% target based on IMAGES_TO_BUILD setting
-#do.image.%: | stage.% $(foreach i, $(IMAGES_TO_BUILD), $(i).% ) ;
-do.image.%: stage.%
-	$(foreach i, $(IMAGES_TO_BUILD), \
-		$(call set_env_vars,$*); $(MAKE) $(call set_env_vars,$*) -C $$STAGING_DIR/$(i) \
-			$(call set_env_vars,$*) $(MAKECMDGOALS)$(\n))
+daemon-base.%: stage.%
+	@$(call set_env_vars,$*); $(MAKE) -C $$STAGING_DIR/daemon-base \
+	  $(call set_env_vars,$*) $(MAKECMDGOALS)
+
+daemon.%: daemon-base.%
+	@$(call set_env_vars,$*); $(MAKE) $(call set_env_vars,$*) -C $$STAGING_DIR/daemon \
+	  $(call set_env_vars,$*) $(MAKECMDGOALS)
+
+do.image.%: daemon.% ;
 
 stage: $(foreach p, $(FLAVORS), stage.$(HOST_ARCH),$(p)) ;
 build: $(foreach p, $(FLAVORS), do.image.$(HOST_ARCH),$(p)) ;
@@ -164,14 +175,10 @@ OPTIONS:
                            Regarding the package manager the version separator may vary:
                              yum/dnf/zypper are using dash (e.g -12.2.2)
                              apt is using an equal (e.g =12.2.2)
-      DISTRO - Distro part of the ceph-releases source path (e.g., opensuse, centos)
+      DISTRO - Distro part of the ceph-releases source path (e.g., ubuntu, centos)
       DISTRO_VERSION - Distro version part of the ceph-releases source path
-                       (e.g., opensuse/"42.3", centos/"7")
-    e.g., make FLAVORS="luminous,opensuse,42.3" ...
-
-	It is also possible to build a container running the latest development release (master).
-	This is only available on centos with the following command :
-		make FLAVORS="master,centos,7"
+                       (e.g., ubuntu/"16.04", centos/"7")
+    e.g., make FLAVORS="luminous,ubuntu,16.04 jewel,ubuntu,14.04" ...
 
   RELEASE - The release version to integrate in the tag. If omitted, set to the branch name.
 
@@ -194,11 +201,6 @@ ADVANCED OPTIONS:
   BASEOS_TAG      - Tag part of the build's base image.  Default: value from DISTRO_VERSION
     e.g., BASEOS_REPO=debian BASEOS_TAG=jessie will use "debian:jessie" as a base image
           BASEOS_REGISTRY with above will use "myreg/debian:jessie" as a base image
-
-  IMAGES_TO_BUILD - Change which images to build. Primarily useful for building daemon-base only,
-                    but could be used to rebuild the daemon for local dev when base hasn't changed.
-                    Default: "daemon-base daemon". Do NOT list specify images out of order!
-                    e.g., IMAGES_TO_BUILD=daemon-base or IMAGES_TO_BUILD=daemon
 
 endef
 export HELPTEXT

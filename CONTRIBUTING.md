@@ -129,7 +129,10 @@ The `ceph-releases/All/` directory contains code that is generic to all Ceph rel
 specific than `src/`. Source that is shared between distros (but is not part of ceph-container's
 core functionality) can be placed in this directory.
 
-Distro-specific source is placed in `ceph-releases/ALL/<distro>` and is yet more specific.
+Distro-specific source is placed in `ceph-releases/ALL/<distro>` and is yet more specific. As an
+example, since all Ubuntu releases use `apt` as their package manager, the
+`ceph-releases/ALL/ubuntu` dir is able to provide definitions for package installation using `apt`
+for all Ubuntu-based flavors.
 
 #### Source specific to a single Ceph release - `ceph-releases/<ceph release>`
 A `ceph-releases/<ceph release>` directory is more specific than `ceph-releases/ALL` and contains
@@ -223,11 +226,11 @@ Commit guidelines
 - Add a best-effort scope designation to commit subjects. This could be a directory name, file name,
   or the name of a logical grouping of code. Examples:
   - **[dir]** ceph-releases: change flavor specification(s) in the `ceph-container` dir
-  - **[dir]** mimic: change flavor spec for mimic
+  - **[dir]** jewel: change flavor spec for jewel
   - **[dir]** kubernetes: edit a Kubernetes example in `examples/kubernetes`
   - **[file]** osd_disk_activate: edit the `src/daemon/osd_scenarios/osd_disk_activate.sh` file
   - **[logical group]** osd prep: change how OSDs are prepared, with changes in multiple files
-  - **[combinations]** mimic osd prep: change how OSDs are prepared only in mimic
+  - **[combinations]** jewel osd prep: change how OSDs are prepared only in jewel
 
 Suggested reading: https://chris.beams.io/posts/git-commit/
 

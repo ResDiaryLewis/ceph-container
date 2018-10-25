@@ -205,16 +205,21 @@ def client():
 
 
 container_tags = [
-    'ceph/daemon:latest-mimic',
-    'ceph/daemon:latest-luminous',
+    'ceph/daemon:tag-build-master-infernalis-centos-7',
+    'ceph/daemon:tag-build-master-jewel-centos-7',
+    'ceph/daemon:tag-build-master-infernalis-ubuntu-16.04',
+    'ceph/daemon:tag-build-master-jewel-ubuntu-16.04',
+    'ceph/daemon:tag-build-master-infernalis-ubuntu-14.04',
+    'ceph/daemon:tag-build-master-jewel-ubuntu-14.04',
+    'ceph/daemon:tag-build-master-jewel-fedora-24'
 ]
 
-current_version_tag = [t for t in container_tags if 'mimic' in t]
-previous_version_tag = [t for t in container_tags if 'luminous' in t]
+jewel_tags = [t for t in container_tags if 'jewel' in t]
+infernalis_tags = [t for t in container_tags if 'infernalis' in t]
 
 
-@pytest.fixture(scope='class', params=current_version_tag)
-def current_version_container(client, request):
+@pytest.fixture(scope='class', params=jewel_tags)
+def jewel_containers(client, request):
     # XXX these are using 'mon' names, we need to cleanup when
     # adding tests for OSDs
     pull_image(request.param, client)
@@ -228,8 +233,8 @@ def current_version_container(client, request):
     teardown_container(client, container, container_network)
 
 
-@pytest.fixture(scope='class', params=previous_version_tag)
-def previous_version_container(client, request):
+@pytest.fixture(scope='class', params=infernalis_tags)
+def infernalis_containers(client, request):
     # XXX these are using 'mon' names, we need to cleanup when
     # adding tests for OSDs
     pull_image(request.param, client)

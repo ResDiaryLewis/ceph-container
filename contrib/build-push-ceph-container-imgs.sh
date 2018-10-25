@@ -10,12 +10,8 @@ set -ex
 BRANCH="${GIT_BRANCH#*/}"
 LATEST_COMMIT_SHA=$(git rev-parse --short HEAD)
 TAGGED_HEAD=false # does HEAD is on a tag ?
-if [ -z "$CEPH_RELEASES" ]; then
-  # NEVER change 'master' position in the array, this will break the 'latest' tag
-  CEPH_RELEASES=(master luminous mimic)
-fi
-
-CEPH_RELEASES_BIS=(luminous) # list of releases that need a "bis" image for ceph-ansible
+if [ -z "$CEPH_RELEASES" ]; then CEPH_RELEASES=(jewel kraken luminous mimic); fi
+CEPH_RELEASES_BIS=(jewel luminous) # list of releases that need a "bis" image for ceph-ansible
 HOST_ARCH=$(uname -m)
 
 
@@ -50,7 +46,7 @@ function enable_experimental_docker_cli {
 }
 
 function grep_sort_tags {
-  "$@" | grep -oE 'v[3-9].[0-9]*.[0-9]|v[3-9].[0-9]*.[0-9][rc]{2}?[0-9]{1,2}?' | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n
+  "$@" | grep -oE 'v[3-9].[0-9]*.[0-9]' | sort -t. -k 1,1n -k 2,2n -k 3,3n -k 4,4n
 }
 
 function download_cn {
@@ -82,10 +78,7 @@ function compare_docker_hub_and_github_tags {
   # we now look into each array and find a possible missing tag
   # the idea is to find if a tag present on github is not present on docker hub
   for i in "${tags_github_array[@]}"; do
-    # the grep has a conditionnal on either the explicit match last character is the end of the line OR
-    # it has a space after it so we cover the case where the tag that matches is placed at the end
-    # of the line or the first one
-    echo "${tags_docker_hub_array[@]}" | grep -qoE "${i}$|${i} " || tag_to_build+=("$i")
+    echo "${tags_docker_hub_array[@]}" | grep -q "$i" || tag_to_build+=("$i")
   done
 
   # if there is an entry we activate TAGGED_HEAD which tells the script to build a release image
