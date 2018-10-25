@@ -44,8 +44,8 @@ spec:
             path: /var/lib/ceph/osd
       containers:
         - name: osd-pod
-          image: ceph/daemon:master-2ecd979-mimic-centos-7-x86_64
-          imagePullPolicy: IfNotPresent
+          image: ceph/daemon:latest
+          imagePullPolicy: Always
           volumeMounts:
             - name: devices
               mountPath: /dev
